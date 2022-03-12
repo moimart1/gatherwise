@@ -1,0 +1,14 @@
+version: '3.4'
+services:
+  app:
+    build:
+      context: .
+      target: ${DOCKER_BUILD_TARGET:-dev}
+    image: ${DOCKER_IMAGE_NAME:-gatherwise:latest}
+    command: sh -c "npm start"
+    env_file:
+      - .env
+    environment:
+      - DOCKER_COMPOSE_SERVICES_MONGO_NAME=mongo
+    ports:
+      - '3000'

@@ -1,0 +1,14 @@
+/node_modules
+npm-debug.log
+/dist
+/data
+# Cache used by TypeScript's incremental build
+*.tsbuildinfo
+Jenkinsfile
+.DS_Store
+.gitignore
+.git/*
+.npm/*
+.config/*
+.vscode/*
+test/results

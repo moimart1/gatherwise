@@ -1,0 +1,31 @@
+{
+  "editor.rulers": [130],
+  "editor.tabCompletion": "off",
+  "editor.tabSize": 2,
+  "editor.trimAutoWhitespace": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": [
+    "source.organizeImports",
+    "source.fixAll.eslint"
+  ],
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.hg": true,
+    "**/.svn": true,
+    "**/CVS": true,
+    "dist": true,
+  },
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "eslint.run": "onSave",
+  "eslint.format.enable": true,
+  "eslint.nodePath": "./node_modules",
+  "eslint.validate": [
+    "javascript",
+    "typescript"
+  ],
+  "jest.autoRun": {"watch": false, "onSave": "test-file", "onStartup": ["all-tests"]},
+  "jira-plugin.workingProject": ""
+}
