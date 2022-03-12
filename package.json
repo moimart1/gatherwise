@@ -58,6 +58,7 @@
 		"nestjs-redoc": "^2.2.2",
 		"passport-jwt": "^4.0.0",
 		"rxjs": "^7.5.4",
+		"splitwise": "^1.0.0",
 		"swagger-ui-express": "^4.3.0",
 		"winston": "^3.6.0"
 	},

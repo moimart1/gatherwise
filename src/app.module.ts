@@ -5,9 +5,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtMiddleware } from './auth/jwt.middleware';
 import { SecretModule } from './endpoints/secret/secret.module';
+import { SplitwiseModule } from './splitwise/splitwise.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, SecretModule],
+  imports: [ConfigModule.forRoot(), AuthModule, SecretModule, SplitwiseModule],
   controllers: [AppController],
   providers: [AppService, Logger],
 })

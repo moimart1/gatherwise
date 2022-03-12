@@ -1,4 +1,5 @@
 import { ValidateNested } from 'class-validator';
+import { SplitWiseConfig } from '../../src/splitwise/splitwise.config';
 
 export function getMongoHost() {
   // Use variable set in docker-compose to know the mongodb host
@@ -30,16 +31,14 @@ export class AuthConfig {
   ignoreExpiration = false;
 }
 
-
 class Datasources {
-
+  @ValidateNested()
+  splitwise = new SplitWiseConfig();
 }
-
 
 export class AppConfig {
   @ValidateNested()
   app = new App();
-
 
   @ValidateNested()
   server = new ServerConfig();
