@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ClientRequest } from 'http';
-import { Error as MongooseErrors, mongo } from 'mongoose';
 
 class BaseExceptionFilter implements ExceptionFilter {
   protected readonly logger = new Logger(BaseExceptionFilter.name);
@@ -58,34 +57,6 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
     }
 
     return super.catch(exception, host, { statusCode: exception.getStatus(), internalMessage });
-  }
-}
-
-@Catch(MongooseErrors.ValidationError)
-export class MongooseExceptionFilter extends BaseExceptionFilter {
-  protected readonly logger = new Logger(MongooseExceptionFilter.name);
-
-  catch(exception: Error, host: ArgumentsHost) {
-    let statusCode = 500;
-    if (exception instanceof MongooseErrors.ValidationError) {
-      statusCode = 422;
-    }
-    return super.catch(exception, host, { statusCode });
-  }
-}
-
-@Catch(mongo.MongoError)
-export class MongodbExceptionFilter extends BaseExceptionFilter {
-  protected readonly logger = new Logger(MongodbExceptionFilter.name);
-
-  catch(exception, host: ArgumentsHost) {
-    let statusCode = 500;
-    if (exception.code === 11000) {
-      exception.code = 'DATABASE_DUPLICATE_KEYS';
-      statusCode = 422;
-    }
-
-    return super.catch(exception, host, { statusCode });
   }
 }
 
