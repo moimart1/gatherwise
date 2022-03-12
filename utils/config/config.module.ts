@@ -4,6 +4,7 @@ import { validate } from 'class-validator';
 import merge from 'lodash.merge';
 import * as os from 'os';
 import * as path from 'path';
+import { SplitWiseConfig } from '../../src/splitwise/splitwise.config';
 import { AppConfig, AuthConfig, ServerConfig } from './app.config';
 
 export enum Environment {
@@ -36,7 +37,7 @@ function loadAdditionalConfig(configPath: string, existingConfig = {}, showError
 
 const externalConfigPath = () => {
   // Test doesn't need external files with secrets
-  if (process.env.NODE_ENV === Environment.Test) return '';
+  //if (process.env.NODE_ENV === Environment.Test) return '';
   return process.env.APP_CONFIG_PATH || '~/.projects/gatherwise/config.json';
 };
 
@@ -49,7 +50,7 @@ export const loadConfig = (showErrors = false): AppConfig => {
   let mergedConfig = new AppConfig(); // Init with empty AppConfig
 
   // Load nodeEnvConfig (if exist)
-  // Overriden by externalConfig (if exist)
+  // Overridden by externalConfig (if exist)
   for (const configPath of [nodeEnvConfigPath(), externalConfigPath()]) {
     mergedConfig = loadAdditionalConfig(configPath, mergedConfig, showErrors);
   }
@@ -77,6 +78,7 @@ export class ConfigModule {
       { provide: AppConfig, useValue: config },
       { provide: ServerConfig, useValue: config.server },
       { provide: AuthConfig, useValue: config.auth },
+      { provide: SplitWiseConfig, useValue: config.datasources.splitwise },
       //{ provide: MyConfig, useValue: config.myConfig }, // Add config directly accessible from constructors
     ];
 

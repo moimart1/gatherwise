@@ -26,6 +26,6 @@
     "javascript",
     "typescript"
   ],
-  "jest.autoRun": {"watch": false, "onSave": "test-file", "onStartup": ["all-tests"]},
+  "jest.autoRun": {"watch": false, "onSave": false, "onStartup": ["all-tests"]},
   "jira-plugin.workingProject": ""
 }
