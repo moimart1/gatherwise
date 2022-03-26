@@ -17,7 +17,7 @@ describe('SplitwiseService', () => {
     const user = await splitwiseService.getCurrentUser();
     expect(user).toBeDefined();
 
-    const expenses = await splitwiseService.getExpensesByGroupName('❤️ 🎈💥🔥');
+    const expenses = await splitwiseService.getExpensesByGroupName('❤️ 🎈💥🔥', { limit: 1000 });
     expect(expenses).toBeDefined();
   });
 });
