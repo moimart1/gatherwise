@@ -4,12 +4,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtMiddleware } from './auth/jwt.middleware';
+import { ImportModule } from './endpoints/import/import.module';
 import { SecretModule } from './endpoints/secret/secret.module';
 import { SourcesModule } from './endpoints/sources/sources.module';
 import { SplitwiseModule } from './splitwise/splitwise.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, SecretModule, SplitwiseModule, SourcesModule],
+  imports: [ConfigModule.forRoot(), AuthModule, SecretModule, SplitwiseModule, SourcesModule, ImportModule],
   controllers: [AppController],
   providers: [AppService, Logger],
 })
