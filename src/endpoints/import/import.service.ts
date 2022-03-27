@@ -29,6 +29,7 @@ export class ImportService {
             _id: importId,
             name: file.originalname,
             fields: results.meta.fields,
+            mimetype: file.mimetype,
             data: results.data,
           });
 
