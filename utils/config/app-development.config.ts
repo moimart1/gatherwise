@@ -1,4 +1,4 @@
-import { AppConfig } from './app.config';
+import { AppConfig, getMongoHost } from './app.config';
 
 // Override default config if NODE_ENV == development
 export default {
@@ -8,5 +8,8 @@ export default {
   auth: {
     ignoreExpiration: true,
   },
-  datasources: {},
+  server: {},
+  datasources: {
+    mongodb: { uri: `mongodb://admin:admin@${getMongoHost()}:27017/gatherwise-dev?authSource=admin` },
+  },
 } as AppConfig;

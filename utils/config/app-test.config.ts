@@ -1,4 +1,4 @@
-import { AppConfig } from './app.config';
+import { AppConfig, getMongoHost } from './app.config';
 
 // Override config if NODE_ENV == test
 export default {
@@ -11,5 +11,8 @@ export default {
     audience: [],
     ignoreExpiration: true,
   },
-  datasources: {},
+  server: {},
+  datasources: {
+    mongodb: { uri: `mongodb://admin:admin@${getMongoHost()}:27017/gatherwise-test?authSource=admin` },
+  },
 } as AppConfig;

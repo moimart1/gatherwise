@@ -20,7 +20,7 @@ class App {
 
 export class ServerConfig {
   port = 3000;
-  basePath = '/api';
+  basePath? = '/api';
 }
 
 export class AuthConfig {
@@ -28,12 +28,19 @@ export class AuthConfig {
   algorithms = ['RS256'];
   issuer = 'https://sso.acme.com/'; // End / is important
   jwksPath = '/protocol/openid-connect/certs';
-  ignoreExpiration = false;
+  ignoreExpiration? = false;
+}
+
+export class MongoDb {
+  uri = 'mongodb://admin:admin@localhost:27017/gatherwise-default?authSource=admin';
 }
 
 class Datasources {
   @ValidateNested()
   splitwise = new SplitWiseConfig();
+
+  @ValidateNested()
+  mongodb = new MongoDb();
 }
 
 export class AppConfig {

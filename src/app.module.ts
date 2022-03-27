@@ -1,5 +1,6 @@
 import { Logger, MiddlewareConsumer, Module, NestModule, OnApplicationBootstrap } from '@nestjs/common';
-import { ConfigModule, ServerConfig } from '../utils/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AppConfig, ConfigModule, ServerConfig } from '../utils/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -9,8 +10,17 @@ import { SecretModule } from './endpoints/secret/secret.module';
 import { SourcesModule } from './endpoints/sources/sources.module';
 import { SplitwiseModule } from './splitwise/splitwise.module';
 
+const DatabaseModule = MongooseModule.forRootAsync({
+  useFactory: async (config: AppConfig) => {
+    return {
+      uri: config.datasources.mongodb.uri,
+    };
+  },
+  inject: [AppConfig],
+});
+
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, SecretModule, SplitwiseModule, SourcesModule, ImportModule],
+  imports: [ConfigModule.forRoot(), AuthModule, DatabaseModule, SecretModule, SplitwiseModule, SourcesModule, ImportModule],
   controllers: [AppController],
   providers: [AppService, Logger],
 })
