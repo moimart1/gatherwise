@@ -1,0 +1,7 @@
+version: '3.4'
+services:
+  app:
+    user: ${USER_UID:-user}
+    command: sh -c "printenv && npm run test:ci"
+    volumes:
+      - ./${TEST_RESULTS_DIR:-test/results}:/app/${TEST_RESULTS_DIR:-./test/results}

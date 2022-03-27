@@ -1,0 +1,11 @@
+version: '3.4'
+services:
+  app:
+    ports:
+      # Publish port to host
+      - '3000:3000'
+  mongo:
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./data/db:/data/db
