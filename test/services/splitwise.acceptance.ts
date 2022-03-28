@@ -17,7 +17,19 @@ describe('SplitwiseService', () => {
     const user = await splitwiseService.getCurrentUser();
     expect(user).toBeDefined();
 
-    const expenses = await splitwiseService.getExpensesByGroupName('❤️ 🎈💥🔥', { limit: 1000 });
+    const expenses = await splitwiseService.getExpensesByGroupName('❤️ 🎈💥🔥', { limit: 5 });
     expect(expenses).toBeDefined();
+
+    const categories = await splitwiseService.getCatagories();
+    expect(categories).toBeDefined();
+
+    const groups = await splitwiseService.getGroups();
+    expect(groups).toBeDefined();
+
+    const friends = await splitwiseService.getFriends();
+    expect(friends).toBeDefined();
+
+    const expense = await splitwiseService.createExpense();
+    expect(expense).toBeDefined();
   });
 });
