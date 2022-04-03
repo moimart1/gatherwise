@@ -15,6 +15,9 @@ export class Import {
   @Prop()
   fields: string[];
 
+  @Prop({ default: 'martin' })
+  author: string;
+
   @Prop()
   data: [{ [key: string]: string }];
 }
