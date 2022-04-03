@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { createHash } from 'crypto';
 import { Model } from 'mongoose';
 import * as papa from 'papaparse';
 import { Readable } from 'stream';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { UpdateImportDto } from './dto/update-import.dto';
 import { Import } from './entities/import.entity';
 
@@ -52,19 +53,37 @@ export class ImportService {
     }
   }
 
-  findAll() {
-    return `This action returns all import`;
+  findAll(pagination: PaginationQueryDto): Promise<Import[]> {
+    return this.model.find().skip(pagination.offset).limit(pagination.limit).exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} import`;
+  async findOne(id: string): Promise<Import> {
+    const result = await this.model.findById(id).exec();
+
+    if (!result) {
+      throw new NotFoundException(`When findOne() ${this.model.modelName} ${id} not found.`);
+    }
+
+    return result;
   }
 
-  update(id: number, updateImportDto: UpdateImportDto) {
-    return `This action updates a #${id} import`;
+  async update(id: string, data: UpdateImportDto): Promise<Import> {
+    const existing = await this.model.findByIdAndUpdate(id, data, { new: true });
+
+    if (!existing) {
+      throw new NotFoundException(`When update() ${this.model.modelName} ${id} not found`);
+    }
+
+    return existing;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} import`;
+  async remove(id: string): Promise<Import> {
+    const deleted = await this.model.findByIdAndRemove(id);
+
+    if (!deleted) {
+      throw new NotFoundException(`When remove() ${this.model.modelName} ${id} not found`);
+    }
+
+    return deleted;
   }
 }

@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtMiddleware } from './auth/jwt.middleware';
 import { ImportModule } from './endpoints/import/import.module';
 import { SourcesModule } from './endpoints/sources/sources.module';
+import { TransactionsModule } from './endpoints/transactions/transactions.module';
 import { SplitwiseModule } from './splitwise/splitwise.module';
 
 const DatabaseModule = MongooseModule.forRootAsync({
@@ -19,7 +20,7 @@ const DatabaseModule = MongooseModule.forRootAsync({
 });
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, DatabaseModule, SplitwiseModule, SourcesModule, ImportModule],
+  imports: [ConfigModule.forRoot(), AuthModule, DatabaseModule, SplitwiseModule, SourcesModule, ImportModule, TransactionsModule],
   controllers: [AppController],
   providers: [AppService, Logger],
 })
