@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { createHash } from 'crypto';
 import { Model } from 'mongoose';
@@ -8,7 +8,7 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Transaction } from './entities/transaction.entity';
 
 function getTransactionId(transaction: CreateTransactionDto) {
-  const key = `${transaction.date}${transaction.description}${transaction.amount}`;
+  const key = `${transaction.index}${transaction.date}${transaction.description}${transaction.amount}`;
   return createHash('sha1').update(key).digest('hex');
 }
 @Injectable()
@@ -23,31 +23,46 @@ export class TransactionsService {
     try {
       return await new this.model(data).save();
     } catch (error) {
-      return null;
+      if (error.name === 'MongoServerError' && error.code === 1100) {
+        // Duplicate keys
+        return null; // continue
+      }
+
+      throw error;
     }
   }
 
-  async findAll(pagination: PaginationQueryDto = { limit: 20 }) {
-    // const splitwiseExpenses = await this.splitwise.getExpenses(pagination);
-    // return splitwiseExpenses?.map((expense) => {
-    //   return {
-    //     date: expense.date,
-    //     description: expense.description,
-    //     cost: expense.cost,
-    //     source: 'splitwise',
-    //   };
-    // });
+  findAll(pagination: PaginationQueryDto): Promise<Transaction[]> {
+    return this.model.find().skip(pagination.offset).limit(pagination.limit).exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+  async findOne(id: string): Promise<Transaction> {
+    const result = await this.model.findById(id).exec();
+
+    if (!result) {
+      throw new NotFoundException(`When findOne() ${this.model.modelName} ${id} not found.`);
+    }
+
+    return result;
   }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
+  async update(id: string, data: UpdateTransactionDto): Promise<Transaction> {
+    const existing = await this.model.findByIdAndUpdate(id, data, { new: true });
+
+    if (!existing) {
+      throw new NotFoundException(`When update() ${this.model.modelName} ${id} not found`);
+    }
+
+    return existing;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
+  async remove(id: string): Promise<Transaction> {
+    const deleted = await this.model.findByIdAndRemove(id);
+
+    if (!deleted) {
+      throw new NotFoundException(`When remove() ${this.model.modelName} ${id} not found`);
+    }
+
+    return deleted;
   }
 }

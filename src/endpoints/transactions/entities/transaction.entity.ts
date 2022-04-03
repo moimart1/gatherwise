@@ -15,8 +15,14 @@ export class Transaction {
   @Prop()
   amount: number;
 
+  @Prop({ default: 'CAD' })
+  currency: string;
+
   @Prop({ default: 'martin' })
   author: string;
+
+  @Prop({ default: false })
+  reviewed: boolean;
 }
 
 export type TransactionDocument = Transaction & Document;

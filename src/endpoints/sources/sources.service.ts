@@ -76,12 +76,13 @@ export class SourcesService {
       const source = await this.findOrCreate(importation);
       if (!source) continue; // TODO give feedback
 
-      for (const data of importation.data) {
+      for (const [idx, data] of importation.data.entries()) {
         const transaction: CreateTransactionDto = {
           date: '',
           description: '',
           amount: 0.0,
           author: importation.author,
+          index: idx, // Identify transaction with his index
         };
 
         for (const [key, value] of Object.entries(data)) {

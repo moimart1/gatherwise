@@ -4,4 +4,5 @@ export class CreateTransactionDto {
   description: string;
   amount: number;
   author: string;
+  index: number; // Help to be unique
 }
