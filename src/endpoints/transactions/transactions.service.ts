@@ -7,17 +7,18 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Transaction } from './entities/transaction.entity';
 
-function getTransactionId(transaction: CreateTransactionDto) {
-  const key = `${transaction.index}${transaction.date}${transaction.description}${transaction.amount}`;
-  return createHash('sha1').update(key).digest('hex');
-}
 @Injectable()
 export class TransactionsService {
   constructor(@InjectModel(Transaction.name) private readonly model: Model<Transaction>) {}
 
+  getTransactionId(transaction: CreateTransactionDto) {
+    const key = `${transaction.index}${transaction.date}${transaction.description}${transaction.amount}`;
+    return createHash('sha1').update(key).digest('hex');
+  }
+
   async create(data: CreateTransactionDto): Promise<Transaction> {
     if (!data._id) {
-      data._id = getTransactionId(data);
+      data._id = this.getTransactionId(data);
     }
 
     try {

@@ -23,6 +23,9 @@ export class Transaction {
 
   @Prop({ default: false })
   reviewed: boolean;
+
+  @Prop() // TODO
+  source: string;
 }
 
 export type TransactionDocument = Transaction & Document;

@@ -76,13 +76,14 @@ export class SourcesService {
       const source = await this.findOrCreate(importation);
       if (!source) continue; // TODO give feedback
 
-      for (const [idx, data] of importation.data.entries()) {
+      const transactionIds = [];
+      for (const data of importation.data) {
         const transaction: CreateTransactionDto = {
           date: '',
           description: '',
           amount: 0.0,
           author: importation.author,
-          index: idx, // Identify transaction with his index
+          index: 0, // Identify transaction with his index
         };
 
         for (const [key, value] of Object.entries(data)) {
@@ -95,6 +96,14 @@ export class SourcesService {
 
           if (mapping.type === MappingType.amount) transaction[normalizedKey] = Number(value);
           if (mapping.isNegative) transaction[normalizedKey] = -1.0 * transaction[normalizedKey];
+        }
+
+        // Transaction ID is based on transaction data.
+        // Sometime a transaction with the same date, description and amount can occurs. Increment index help to be unique
+        transaction._id = this.transactionService.getTransactionId(transaction);
+        while (transactionIds.includes(transaction._id)) {
+          transaction.index++;
+          transaction._id = this.transactionService.getTransactionId(transaction);
         }
 
         this.transactionService.create(transaction);
