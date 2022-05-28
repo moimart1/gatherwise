@@ -20,7 +20,7 @@ describe('SplitwiseService', () => {
     const expenses = await splitwiseService.getExpensesByGroupName('❤️ 🎈💥🔥', { limit: 5 });
     expect(expenses).toBeDefined();
 
-    const categories = await splitwiseService.getCatagories();
+    const categories = await splitwiseService.getCategories();
     expect(categories).toBeDefined();
 
     const groups = await splitwiseService.getGroups();

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import Splitwise from 'splitwise';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { CreateExpenseDto } from './dto/create-expense.dto';
 import { SplitWiseConfig } from './splitwise.config';
 
 @Injectable()
@@ -18,6 +19,14 @@ export class SplitwiseService {
     return await this.splitwise.getCurrentUser();
   }
 
+  async getContext() {
+    return {
+      groups: await this.getGroups(),
+      categories: await this.getCategories(),
+      friends: await this.getFriends(),
+    };
+  }
+
   async getExpenses({ limit, offset }: PaginationQueryDto) {
     return await this.splitwise.getExpenses({ limit, offset });
   }
@@ -31,7 +40,7 @@ export class SplitwiseService {
     return await this.splitwise.getExpenses({ ...options, group_id: selectedGroup.id });
   }
 
-  async getCatagories() {
+  async getCategories() {
     return await this.splitwise.getCategories();
   }
 
@@ -39,22 +48,22 @@ export class SplitwiseService {
     return await this.splitwise.getGroups();
   }
 
-  async getFriends() {
+  async getFriends(groupId = 31659206 /* test group */) {
     return await this.splitwise.getFriends({
-      group_id: 31659206, // test group
+      group_id: groupId,
     });
   }
 
-  async createExpense() {
+  async createExpense({ cost, description, date, categoryId, groupId }: CreateExpenseDto) {
     return await this.splitwise.createExpense({
-      cost: '25',
-      description: 'Grocery run 2',
-      details: 'Notes',
-      date: '2022-03-28T13:00:00Z',
+      cost,
+      description,
+      details: 'Added by Gatherwise',
+      date,
       repeat_interval: 'never',
-      currency_code: 'CAD',
-      category_id: 2, // no category
-      group_id: 31659206, // test group
+      currency_code: 'CAD', // TODO config
+      category_id: categoryId,
+      group_id: groupId,
       users: [
         { user_id: '32579622', paid_share: '25', owed_share: '13.55' }, // test user 1
         { user_id: '49553235', paid_share: '0', owed_share: '11.45' }, // test user 2
