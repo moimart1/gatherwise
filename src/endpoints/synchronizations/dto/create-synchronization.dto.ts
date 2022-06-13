@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsNumber } from 'class-validator';
+import { ArrayNotEmpty, IsNotEmpty, IsNumber, Min } from 'class-validator';
 
 export class CreateSynchronizationDto {
   @IsNotEmpty()
@@ -9,8 +9,17 @@ export class MemberDto {
   @IsNumber()
   id: number;
 
-  @IsNumber()
-  amount: number;
+  /**
+   * The amount paid at the moment of the transaction
+   */
+  @Min(0)
+  paid: number;
+
+  /**
+   * The amount to share with the group
+   */
+  @Min(0)
+  owed: number;
 }
 
 export class SyncToSplitwiseDto extends CreateSynchronizationDto {
@@ -20,6 +29,6 @@ export class SyncToSplitwiseDto extends CreateSynchronizationDto {
   @IsNumber()
   groupId: number;
 
-  @IsArray()
+  @ArrayNotEmpty()
   members: MemberDto[];
 }

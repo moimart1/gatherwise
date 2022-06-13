@@ -54,7 +54,7 @@ export class SplitwiseService {
     });
   }
 
-  async createExpense({ cost, description, date, categoryId, groupId }: CreateExpenseDto) {
+  async createExpense({ cost, description, date, categoryId, groupId, users }: CreateExpenseDto) {
     return await this.splitwise.createExpense({
       cost,
       description,
@@ -64,10 +64,7 @@ export class SplitwiseService {
       currency_code: 'CAD', // TODO config
       category_id: categoryId,
       group_id: groupId,
-      users: [
-        { user_id: '32579622', paid_share: '25', owed_share: '13.55' }, // test user 1
-        { user_id: '49553235', paid_share: '0', owed_share: '11.45' }, // test user 2
-      ],
+      users,
     });
   }
 }

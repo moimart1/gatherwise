@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document, Schema as MongooseSchema } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Synchronization {
-  @Prop()
-  _id: string;
+  @Prop({ auto: true, type: MongooseSchema.Types.ObjectId })
+  _id: mongoose.ObjectId;
 
   @Prop()
   transactionId: string;

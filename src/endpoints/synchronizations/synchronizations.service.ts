@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SplitwiseService } from '../../splitwise/splitwise.service';
@@ -15,13 +15,26 @@ export class SynchronizationsService {
     private splitwise: SplitwiseService,
   ) {}
 
-  async syncToSplitwise({ transactionId, ...data }: SyncToSplitwiseDto) {
-    const { amount, ...transaction } = await this.transactionService.findOne(transactionId);
-    const splitwiseResult = await this.splitwise.createExpense({
-      ...data,
-      ...transaction,
-      cost: amount,
-    });
+  async syncToSplitwise({ transactionId, members, ...data }: SyncToSplitwiseDto) {
+    const { amount, description, date } = await this.transactionService.findOne(transactionId);
+    let splitwiseResult;
+    try {
+      splitwiseResult = await this.splitwise.createExpense({
+        ...data,
+        description,
+        date,
+        cost: Math.abs(amount).toFixed(2),
+        users: members.map((member) => {
+          return {
+            user_id: member.id,
+            paid_share: member.paid?.toFixed(2),
+            owed_share: member.owed?.toFixed(2),
+          };
+        }),
+      });
+    } catch (err) {
+      throw new BadRequestException(err);
+    }
 
     return await new this.model({ transactionId, outputName: 'splitwise', outputId: String(splitwiseResult.id) }).save();
   }

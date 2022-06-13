@@ -1,8 +1,19 @@
-import { IsDateString, IsNotEmpty, IsOptional } from 'class-validator';
+import { ArrayNotEmpty, IsDateString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+
+class CreateExpenseUserDto {
+  @IsNumber()
+  user_id: number;
+
+  @IsNotEmpty()
+  paid_share: string;
+
+  @IsNotEmpty()
+  owed_share: string;
+}
 
 export class CreateExpenseDto {
   @IsNotEmpty()
-  cost: number;
+  cost: string;
 
   @IsNotEmpty()
   description: string;
@@ -18,4 +29,7 @@ export class CreateExpenseDto {
 
   @IsOptional()
   groupId?: number;
+
+  @ArrayNotEmpty()
+  users: CreateExpenseUserDto[];
 }
