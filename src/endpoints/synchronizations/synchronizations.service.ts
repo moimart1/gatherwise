@@ -15,7 +15,7 @@ export class SynchronizationsService {
     private splitwise: SplitwiseService,
   ) {}
 
-  async syncToSplitwise({ transactionId, members, ...data }: SyncToSplitwiseDto) {
+  async syncToSplitwise({ transactionId, members, note, ...data }: SyncToSplitwiseDto) {
     const { amount, description, date } = await this.transactionService.findOne(transactionId);
     let splitwiseResult;
     try {
@@ -24,6 +24,7 @@ export class SynchronizationsService {
         description,
         date,
         cost: Math.abs(amount).toFixed(2),
+        details: note,
         users: members.map((member) => {
           return {
             user_id: member.id,

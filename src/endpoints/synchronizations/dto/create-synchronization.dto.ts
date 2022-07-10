@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { ArrayNotEmpty, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class CreateSynchronizationDto {
   @IsNotEmpty()
@@ -31,4 +31,7 @@ export class SyncToSplitwiseDto extends CreateSynchronizationDto {
 
   @ArrayNotEmpty()
   members: MemberDto[];
+
+  @IsOptional()
+  note: string;
 }

@@ -54,11 +54,11 @@ export class SplitwiseService {
     });
   }
 
-  async createExpense({ cost, description, date, categoryId, groupId, users }: CreateExpenseDto) {
+  async createExpense({ cost, description, date, categoryId, groupId, users, details }: CreateExpenseDto) {
     return await this.splitwise.createExpense({
       cost,
       description,
-      details: 'Added by Gatherwise',
+      details: (details ? details + '\n' : '') + 'Added by Gatherwise',
       date,
       repeat_interval: 'never',
       currency_code: 'CAD', // TODO config

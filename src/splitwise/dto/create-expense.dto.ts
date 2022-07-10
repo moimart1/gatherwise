@@ -30,6 +30,9 @@ export class CreateExpenseDto {
   @IsOptional()
   groupId?: number;
 
+  @IsOptional()
+  details: string;
+
   @ArrayNotEmpty()
   users: CreateExpenseUserDto[];
 }

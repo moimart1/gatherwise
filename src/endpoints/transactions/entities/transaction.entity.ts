@@ -24,6 +24,9 @@ export class Transaction {
   @Prop({ default: false })
   reviewed: boolean;
 
+  @Prop()
+  note: string;
+
   @Prop() // TODO
   source: string;
 }
