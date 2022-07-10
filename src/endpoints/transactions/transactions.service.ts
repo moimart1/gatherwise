@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { createHash } from 'crypto';
 import { Model, PipelineStage } from 'mongoose';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { FindQueryDto } from './dto/find-query.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Transaction } from './entities/transaction.entity';
 
@@ -33,7 +33,7 @@ export class TransactionsService {
     }
   }
 
-  findAll({ offset, limit }: PaginationQueryDto): Promise<Transaction[]> {
+  findAll({ offset, limit, includeSynched }: FindQueryDto): Promise<Transaction[]> {
     const pipeline: PipelineStage[] = [
       {
         $lookup: {
@@ -44,6 +44,12 @@ export class TransactionsService {
         },
       },
     ];
+
+    if (!includeSynched) {
+      pipeline.push({
+        $match: { $and: [{ sync: { $size: 0 } }, { reviewed: false }] },
+      });
+    }
 
     if (offset > 0) {
       pipeline.push({

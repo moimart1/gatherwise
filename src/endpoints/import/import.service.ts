@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import * as papa from 'papaparse';
 import { Readable } from 'stream';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { SourcesService } from '../sources/sources.service';
 import { UpdateImportDto } from './dto/update-import.dto';
 import { Import } from './entities/import.entity';
 
@@ -14,22 +15,23 @@ interface ImportOptions {
 
 @Injectable()
 export class ImportService {
-  constructor(@InjectModel(Import.name) private readonly model: Model<Import>) {}
+  constructor(@InjectModel(Import.name) private readonly model: Model<Import>, private sourceService: SourcesService) {}
 
-  importCsv(file: Express.Multer.File, { importId }: ImportOptions) {
+  private importCsv(file: Express.Multer.File, { importId }: ImportOptions): Promise<Import> {
     return new Promise((resolve, reject) => {
       papa.parse(Readable.from(file.buffer), {
         header: true,
-        complete: (results) => {
+        complete: async (results) => {
           if (results?.errors.length > 0) {
             return reject(new BadRequestException(`When parse CSV: ${JSON.stringify(results.errors)}`));
           }
 
+          const { _id: sourceId } = await this.sourceService.findOrCreateFromFields(results.meta.fields, file.mimetype);
           // Map data for database
           const db = new this.model({
             _id: importId,
+            sourceId,
             name: file.originalname,
-            fields: results.meta.fields,
             mimetype: file.mimetype,
             data: results.data,
           });
@@ -41,27 +43,36 @@ export class ImportService {
     });
   }
 
-  create(file: Express.Multer.File) {
+  async createFromFile(file: Express.Multer.File) {
     // Create hash from file buffer to avoid to import multiple times the same content
     const importId = createHash('sha1').update(file.buffer).digest('hex');
+    let result: Import;
 
     switch (file.mimetype) {
       case 'text/csv':
-        return this.importCsv(file, { importId });
+        result = await this.importCsv(file, { importId });
+        break;
       default:
         throw new BadRequestException(`Format ${file.mimetype} not supported`);
     }
+
+    delete result.data; // Don't need to resend all data
+    return result;
+  }
+
+  createFromSplitwise() {
+    //TODO
   }
 
   findAll(pagination: PaginationQueryDto): Promise<Import[]> {
     return this.model.find().skip(pagination.offset).limit(pagination.limit).exec();
   }
 
-  async findOne(id: string): Promise<Import> {
+  async findById(id: string): Promise<Import> {
     const result = await this.model.findById(id).exec();
 
     if (!result) {
-      throw new NotFoundException(`When findOne() ${this.model.modelName} ${id} not found.`);
+      throw new NotFoundException(`When findById() ${this.model.modelName} ${id} not found.`);
     }
 
     return result;
@@ -85,5 +96,11 @@ export class ImportService {
     }
 
     return deleted;
+  }
+
+  async convertToTransactions(id: string) {
+    const importation = await this.findById(id);
+    await this.sourceService.fromImportationToTransactions(importation);
+    return await this.update(id, { convertedAt: new Date().toISOString() });
   }
 }

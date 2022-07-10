@@ -1,66 +1,83 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { createHash } from 'crypto';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { Model } from 'mongoose';
 import { Import } from '../import/entities/import.entity';
-import { ImportService } from '../import/import.service';
 import { CreateTransactionDto } from '../transactions/dto/create-transaction.dto';
 import { TransactionsService } from '../transactions/transactions.service';
 import { CreateSourceDto } from './dto/create-source.dto';
 import { UpdateSourceDto } from './dto/update-source.dto';
-
-function getSourceId(importation: Import) {
-  const key = `${importation.mimetype}${importation.fields.join('')}`;
-  return createHash('sha1').update(key).digest('hex');
-}
-
-enum MappingType {
-  datetime = 'date',
-  description = 'description',
-  category = 'category',
-  amount = 'amount',
-  author = 'author',
-}
+import { MappingType, Source, SourceDocument } from './entities/source.entity';
 
 @Injectable()
 export class SourcesService {
-  constructor(private importation: ImportService, private transactionService: TransactionsService) {}
+  constructor(@InjectModel(Source.name) private readonly model: Model<Source>, private transactionService: TransactionsService) {}
+
+  sourceIdFromFields(fields: string[], metadata = '') {
+    const key = `${metadata}${fields.join('')}`;
+    return createHash('sha1').update(key).digest('hex');
+  }
 
   create(data: CreateSourceDto) {
     return 'This action adds a new source';
   }
 
-  async findOrCreate(importation: Import) {
-    return await this.findOne(getSourceId(importation)); // TODO create
+  async findOrCreateFromFields(fields: string[], metadata = ''): Promise<SourceDocument> {
+    const sourceId = this.sourceIdFromFields(fields, metadata);
+    return await this.model
+      .findByIdAndUpdate(
+        sourceId,
+        {
+          $setOnInsert: {
+            excludedValues: [],
+            mapping: fields.reduce((acc, field) => {
+              acc[field] = {};
+              return acc;
+            }, {}),
+          },
+        },
+        { upsert: true, new: true },
+      )
+      .exec();
   }
 
   findAll() {
     return `This action returns all sources`;
   }
 
-  async findOne(id: string) {
-    return {
-      ignoredValues: ['0'],
-      mapping: {
-        Date: {
-          type: MappingType.datetime,
-        },
-        Description: {
-          type: MappingType.description,
-        },
-        Categorie: {
-          type: MappingType.category,
-        },
-        Debit: {
-          type: MappingType.amount,
-          isNegative: true,
-        },
-        Credit: {
-          type: MappingType.amount,
-          isNegative: false,
-        },
-      },
-    };
+  async findById(id: string): Promise<SourceDocument> {
+    const result = await this.model.findById(id).exec();
+
+    if (!result) {
+      throw new NotFoundException(`When findById() ${this.model.modelName} ${id} not found.`);
+    }
+
+    return result;
   }
+
+  //   return {
+  //     ignoredValues: ['0'],
+  //     mapping: {
+  //       Date: {
+  //         type: MappingType.datetime,
+  //       },
+  //       Description: {
+  //         type: MappingType.description,
+  //       },
+  //       Categorie: {
+  //         type: MappingType.category,
+  //       },
+  //       Debit: {
+  //         type: MappingType.amount,
+  //         isNegative: true,
+  //       },
+  //       Credit: {
+  //         type: MappingType.amount,
+  //         isNegative: false,
+  //       },
+  //     },
+  //   };
+  // }
 
   update(id: number, updateSourceDto: UpdateSourceDto) {
     return `This action updates a #${id} source`;
@@ -70,44 +87,48 @@ export class SourcesService {
     return `This action removes a #${id} source`;
   }
 
-  async normalize(pagination: PaginationQueryDto) {
-    const importations = await this.importation.findAll(pagination); // TODO filter already transformed
-    for (const importation of importations) {
-      const source = await this.findOrCreate(importation);
-      if (!source) continue; // TODO give feedback
+  async fromImportationToTransactions(importation: Import) {
+    const source = (await this.findById(importation.sourceId)).toObject();
+    const transactionIds = [];
 
-      const transactionIds = [];
-      for (const data of importation.data) {
-        const transaction: CreateTransactionDto = {
-          date: '',
-          description: '',
-          amount: 0.0,
-          author: importation.author,
-          index: 0, // Identify transaction with his index
-        };
+    for (const data of importation.data) {
+      const transaction: CreateTransactionDto = {
+        date: '',
+        description: '',
+        amount: 0.0,
+        author: importation.author,
+        index: 0, // Identify transaction with his index
+      };
 
-        for (const [key, value] of Object.entries(data)) {
-          const mapping = source.mapping[key];
-          if (!mapping) continue; //TODO manage this case
-          if (!value || source.ignoredValues.includes(value)) continue;
+      for (const [key, value] of Object.entries(data)) {
+        const mapping = source.mapping.get(key);
+        if (!mapping) continue; //TODO manage this case
+        if (!value || source.excludedValues.includes(value)) continue;
 
-          const normalizedKey = mapping.type;
-          transaction[normalizedKey] = value;
-
-          if (mapping.type === MappingType.amount) transaction[normalizedKey] = Number(value);
-          if (mapping.isNegative) transaction[normalizedKey] = -1.0 * transaction[normalizedKey];
+        const normalizedKey = mapping.type;
+        switch (mapping.type) {
+          case MappingType.amount:
+            if (Number(value) == 0) continue; // ignore null values in amount
+            transaction[normalizedKey] = Number(value);
+            break;
+          default:
+            transaction[normalizedKey] = value;
+            break;
         }
 
-        // Transaction ID is based on transaction data.
-        // Sometime a transaction with the same date, description and amount can occurs. Increment index help to be unique
-        transaction._id = this.transactionService.getTransactionId(transaction);
-        while (transactionIds.includes(transaction._id)) {
-          transaction.index++;
-          transaction._id = this.transactionService.getTransactionId(transaction);
-        }
-
-        this.transactionService.create(transaction);
+        if (mapping.isNegative) transaction[normalizedKey] = -1.0 * transaction[normalizedKey];
       }
+
+      // Transaction ID is based on transaction data.
+      // Sometime a transaction with the same date, description and amount can occurs. Increment index help to be unique
+      transaction._id = this.transactionService.getTransactionId(transaction);
+      while (transactionIds.includes(transaction._id)) {
+        transaction.index++;
+        transaction._id = this.transactionService.getTransactionId(transaction);
+      }
+
+      transactionIds.push(transaction._id); // saved for next transactions
+      await this.transactionService.create(transaction);
     }
   }
 }

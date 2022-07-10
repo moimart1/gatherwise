@@ -13,10 +13,13 @@ export class Import {
   mimetype: string;
 
   @Prop()
-  fields: string[];
+  sourceId: string;
 
   @Prop({ default: 'martin' })
   author: string;
+
+  @Prop()
+  convertedAt: string;
 
   @Prop()
   data: [{ [key: string]: string }];

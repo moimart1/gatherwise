@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { FindQueryDto } from './dto/find-query.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionsService } from './transactions.service';
 
@@ -16,8 +16,8 @@ export class TransactionsController {
   }
 
   @Get()
-  findAll(@Query() pagination: PaginationQueryDto) {
-    return this.transactionsService.findAll(pagination);
+  findAll(@Query() query: FindQueryDto) {
+    return this.transactionsService.findAll(query);
   }
 
   @Get(':id')

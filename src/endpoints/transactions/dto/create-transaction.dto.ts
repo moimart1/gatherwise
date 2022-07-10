@@ -5,4 +5,5 @@ export class CreateTransactionDto {
   amount: number;
   author: string;
   index: number; // Help to be unique
+  reviewed?: boolean;
 }
