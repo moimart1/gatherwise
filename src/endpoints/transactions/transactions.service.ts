@@ -45,6 +45,8 @@ export class TransactionsService {
       },
     ];
 
+    pipeline.push({ $sort: { date: -1 } });
+
     if (!includeSynched) {
       pipeline.push({
         $match: { $and: [{ sync: { $size: 0 } }, { reviewed: false }] },
