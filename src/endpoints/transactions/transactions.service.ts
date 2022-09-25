@@ -24,7 +24,7 @@ export class TransactionsService {
     try {
       return await new this.model(data).save();
     } catch (error) {
-      if (error.name === 'MongoServerError' && error.code === 1100) {
+      if (error.name === 'MongoServerError' && error.code === 11000) {
         // Duplicate keys
         return null; // continue
       }
