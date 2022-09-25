@@ -1,6 +1,6 @@
 {
 	"name": "gatherwise",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "Easiest depensies into SplitWise",
 	"main": "dist/src/main.js",
 	"types": "dist/src/main.d.ts",
