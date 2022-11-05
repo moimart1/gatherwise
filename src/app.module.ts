@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtMiddleware } from './auth/jwt.middleware';
+import { ContactsModule } from './endpoints/contacts/contacts.module';
 import { ImportModule } from './endpoints/import/import.module';
 import { SourcesModule } from './endpoints/sources/sources.module';
 import { SynchronizationsModule } from './endpoints/synchronizations/synchronizations.module';
@@ -30,6 +31,7 @@ const DatabaseModule = MongooseModule.forRootAsync({
     ImportModule,
     TransactionsModule,
     SynchronizationsModule,
+    ContactsModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],
