@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional } from 'class-validator';
+
+class CreateContactLinksDto {
+  @IsNotEmpty()
+  service: 'splitwise' | string;
+
+  @IsNotEmpty()
+  id: string;
+}
 
 export class CreateContactDto {
   @IsNotEmpty()
@@ -9,4 +17,8 @@ export class CreateContactDto {
 
   @IsOptional()
   phone?: string;
+
+  @IsOptional()
+  @IsArray()
+  links?: CreateContactLinksDto[];
 }

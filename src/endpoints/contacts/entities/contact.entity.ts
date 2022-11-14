@@ -1,12 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectId, Schema as MongooseSchema } from 'mongoose';
 
+@Schema()
 class ContactLinks {
-  @Prop({ type: MongooseSchema.Types.ObjectId })
-  _id: ObjectId;
+  @Prop({ type: MongooseSchema.Types.ObjectId, auto: true })
+  _id?: ObjectId;
 
   @Prop()
-  service: string;
+  service: 'splitwise' | string;
 
   @Prop()
   id: string;
@@ -16,7 +17,7 @@ const ContactLinksSchema = SchemaFactory.createForClass(ContactLinks);
 
 @Schema({ timestamps: true })
 export class Contact {
-  @Prop({ type: MongooseSchema.Types.ObjectId })
+  @Prop({ type: MongooseSchema.Types.ObjectId, auto: true })
   _id: ObjectId;
 
   @Prop()
@@ -29,7 +30,6 @@ export class Contact {
   phone?: string;
 
   @Prop({ type: [ContactLinksSchema], required: false })
-  //@Prop([{ type: ContactLinksSchema, required: false }])
   links?: ContactLinks[];
 }
 

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import Splitwise from 'splitwise';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateExpenseDto } from './dto/create-expense.dto';
+import { ReadFriends } from './dto/read-friends.dto';
 import { SplitWiseConfig } from './splitwise.config';
 
 @Injectable()
@@ -48,10 +49,8 @@ export class SplitwiseService {
     return await this.splitwise.getGroups();
   }
 
-  async getFriends(groupId = 31659206 /* test group */) {
-    return await this.splitwise.getFriends({
-      group_id: groupId,
-    });
+  async getFriends(): Promise<ReadFriends[]> {
+    return await this.splitwise.getFriends();
   }
 
   async createExpense({ cost, description, date, categoryId, groupId, users, details }: CreateExpenseDto) {

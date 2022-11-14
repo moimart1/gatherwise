@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { QueryContactDto } from './dto/query-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 
+@ApiTags('contacts')
 @Controller('contacts')
 export class ContactsController {
   constructor(private readonly contactsService: ContactsService) {}
@@ -31,5 +33,10 @@ export class ContactsController {
   @Delete(':id')
   removeById(@Param('id') id: string) {
     return this.contactsService.removeById(id);
+  }
+
+  @Put('sync-with-splitwise')
+  syncWithSplitwise() {
+    return this.contactsService.syncWithSplitwise();
   }
 }
