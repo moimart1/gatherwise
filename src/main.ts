@@ -1,6 +1,6 @@
+import { RedocModule } from '@crissancar/nestjs-redoc';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { RedocModule } from 'nestjs-redoc';
 import { name, version } from '../package.json';
 import { AppConfig } from '../utils/config';
 import { default as logger } from '../utils/logger';
