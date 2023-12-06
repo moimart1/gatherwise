@@ -7,7 +7,7 @@ import { Readable } from 'stream';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { SourcesService } from '../sources/sources.service';
 import { UpdateImportDto } from './dto/update-import.dto';
-import { Import } from './entities/import.entity';
+import { Import, ImportDocument } from './entities/import.entity';
 
 interface ImportOptions {
   importId: string;
@@ -88,14 +88,14 @@ export class ImportService {
     return existing;
   }
 
-  async remove(id: string): Promise<Import> {
-    const deleted = await this.model.findByIdAndRemove(id);
+  async remove(id: string): Promise<ImportDocument> {
+    const deleted = await this.model.findByIdAndDelete(id);
 
     if (!deleted) {
       throw new NotFoundException(`When remove() ${this.model.modelName} ${id} not found`);
     }
 
-    return deleted;
+    return deleted.value;
   }
 
   async convertToTransactions(id: string) {

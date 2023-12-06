@@ -89,12 +89,12 @@ export class TransactionsService {
   }
 
   async remove(id: string): Promise<Transaction> {
-    const deleted = await this.model.findByIdAndRemove(id);
+    const deleted = await this.model.findByIdAndDelete(id);
 
     if (!deleted) {
       throw new NotFoundException(`When remove() ${this.model.modelName} ${id} not found`);
     }
 
-    return deleted;
+    return deleted.value;
   }
 }
